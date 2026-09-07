@@ -1,15 +1,28 @@
 import { AuthProvider } from '@/contexts/AuthContext'
 import './globals.css'
+import { Cinzel, Lora } from 'next/font/google'
+
+const cinzel = Cinzel({
+  subsets: ['latin', 'latin-ext'],
+  variable: '--font-cinzel',
+  display: 'swap',
+})
+
+const lora = Lora({
+    subsets: ['latin', 'latin-ext'],
+  variable: '--font-lora',  
+  display: 'swap',
+})
 
 export const metadata = {
-  title: 'BoardGame Hub',
+  title: 'MeepleMatch',
   description: 'Социальная сеть для настольщиков',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ru">
-      <body className="bg-gradient-to-br from-purple-950 via-blue-950 to-indigo-950 min-h-screen">
+    <html lang="ru" className={`${cinzel.variable} ${lora.variable}`}>
+      <body>
         <AuthProvider>
           {children}
         </AuthProvider>
