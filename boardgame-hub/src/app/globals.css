@@ -24,3 +24,17 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+:root {
+  --bg-primary: #f3f1e2;
+  --bg-secondary: #e8e5d4;
+  --bg-tertiary: #d4d0be;
+  --text-primary: #2d2a24;
+  --text-secondary: #5c5747;
+  --accent: #b8a88a;
+  --accent-dark: #9e8f6f;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
