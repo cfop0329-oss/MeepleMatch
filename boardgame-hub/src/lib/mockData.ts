@@ -193,3 +193,117 @@ export const joinEvent = (eventId: string) => {
   }
   return null
 }
+
+export interface Message {
+  id: string
+  chatId: string
+  senderId: string
+  senderName: string
+  text: string
+  createdAt: string
+}
+
+export interface Chat {
+  id: string
+  eventId: string
+  eventName: string
+  participants: string[] // id пользователей
+  messages: Message[]
+  createdAt: string
+}
+
+// Получить все чаты
+export const getChats = (): Chat[] => {
+  if (typeof window === 'undefined') return []
+  const chats = localStorage.getItem('chats')
+  return chats ? JSON.parse(chats) : []
+}
+
+// Сохранить чаты
+export const saveChats = (chats: Chat[]) => {
+  if (typeof window === 'undefined') return
+  localStorage.setItem('chats', JSON.stringify(chats))
+}
+
+// Создать чат при присоединении к событию
+export const createChatForEvent = (eventId: string, eventName: string, userId: string, userName: string): Chat | null => {
+  const chats = getChats()
+  
+  // Проверяем, есть ли уже чат для этого события
+  const existingChat = chats.find(c => c.eventId === eventId)
+  if (existingChat) {
+    // Добавляем пользователя если его нет
+    if (!existingChat.participants.includes(userId)) {
+      existingChat.participants.push(userId)
+      saveChats(chats)
+    }
+    return existingChat
+  }
+
+  // Создаём новый чат
+  const newChat: Chat = {
+    id: `chat_${Date.now()}`,
+    eventId,
+    eventName,
+    participants: [userId],
+    messages: [
+      {
+        id: `msg_${Date.now()}`,
+        chatId: `chat_${Date.now()}`,
+        senderId: userId,
+        senderName: userName,
+        text: `Чат создан для сбора "${eventName}"`,
+        createdAt: new Date().toISOString(),
+      }
+    ],
+    createdAt: new Date().toISOString(),
+  }
+
+  chats.push(newChat)
+  saveChats(chats)
+  return newChat
+}
+
+// Получить чаты пользователя
+export const getUserChats = (userId: string): Chat[] => {
+  const chats = getChats()
+  return chats.filter(c => c.participants.includes(userId))
+}
+
+// Отправить сообщение
+export const sendMessage = (chatId: string, senderId: string, senderName: string, text: string): Message | null => {
+  const chats = getChats()
+  const chat = chats.find(c => c.id === chatId)
+  
+  if (!chat) return null
+
+  const newMessage: Message = {
+    id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    chatId,
+    senderId: senderId,      // ← важно: сохраняем ID отправителя
+    senderName: senderName,  // ← важно: сохраняем имя отправителя
+    text,
+    createdAt: new Date().toISOString(),
+  }
+
+  chat.messages.push(newMessage)
+  saveChats(chats)
+  return newMessage
+}
+
+// Обновить joinEvent чтобы создавал чат
+export const joinEventWithChat = (eventId: string, userId: string, userName: string) => {
+  const events = getEvents()
+  const event = events.find(e => e.id === eventId)
+  
+  if (event) {
+    event.playersJoined += 1
+    localStorage.setItem('gameEvents', JSON.stringify(events))
+    
+    // Создаём чат
+    createChatForEvent(eventId, event.gameName, userId, userName)
+    
+    return event
+  }
+  return null
+}

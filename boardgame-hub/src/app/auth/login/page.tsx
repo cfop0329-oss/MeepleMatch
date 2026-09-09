@@ -8,11 +8,11 @@ import { t } from '@/lib/i18n'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 
 export default function LoginPage() {
-  const router = useRouter()
-  const { lang } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const router = useRouter()
+  const { lang, refreshUser } = useAuth()
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -22,6 +22,7 @@ export default function LoginPage() {
     if (!result.success) {
       setError(result.error || 'Ошибка')
     } else {
+      refreshUser() // <-- ДОБАВИЛИ ЭТУ СТРОКУ
       router.push('/profile')
     }
   }

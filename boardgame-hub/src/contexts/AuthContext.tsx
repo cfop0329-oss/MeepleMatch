@@ -1,13 +1,14 @@
 'use client'
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
-import { getCurrentUser, logout as logoutUser } from '@/lib/auth'
-import { Language, User } from '@/types'
+import { User, getCurrentUser, logout as logoutUser } from '@/lib/auth'
+import { Language } from '@/types'
 
 interface AuthContextType {
   user: User | null
   loading: boolean
   logout: () => void
+  refreshUser: () => void // <-- ДОБАВИЛИ ЭТО
   lang: Language
   setLang: (lang: Language) => void
 }
@@ -16,6 +17,7 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
   logout: () => {},
+  refreshUser: () => {}, // <-- ДОБАВИЛИ ЭТО
   lang: 'ru',
   setLang: () => {},
 })
@@ -32,6 +34,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(false)
   }, [])
 
+  // <-- ДОБАВИЛИ ЭТУ ФУНКЦИЮ
+  const refreshUser = () => {
+    setUser(getCurrentUser())
+  }
+
   const handleSetLang = (newLang: Language) => {
     setLang(newLang)
     localStorage.setItem('lang', newLang)
@@ -43,7 +50,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, logout: handleLogout, lang, setLang: handleSetLang }}>
+    <AuthContext.Provider value={{ user, loading, logout: handleLogout, refreshUser, lang, setLang: handleSetLang }}>
       {children}
     </AuthContext.Provider>
   )

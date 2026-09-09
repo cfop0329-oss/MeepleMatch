@@ -9,7 +9,7 @@ import LanguageSwitcher from '@/components/LanguageSwitcher'
 
 export default function RegisterPage() {
   const router = useRouter()
-  const { lang } = useAuth()
+  const { lang , refreshUser } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -22,10 +22,10 @@ export default function RegisterPage() {
     if (!result.success) {
       setError(result.error || 'Ошибка')
     } else {
+      refreshUser() // <-- ДОБАВИЛИ ЭТУ СТРОКУ
       router.push('/profile')
     }
   }
-
   return (
     <div className="min-h-screen flex relative overflow-hidden">
       {/* Фоновое изображение */}

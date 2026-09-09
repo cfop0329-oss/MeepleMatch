@@ -7,7 +7,7 @@ import { t } from '@/lib/i18n'
 import Navbar from '@/components/Navbar'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import { Megaphone, MapPin, Clock, Users, Trash2, UserPlus, Plus, X } from 'lucide-react'
-import { getEvents, joinEvent, deleteEvent, saveEvent, GameEvent } from '@/lib/mockData'
+import { getEvents, joinEventWithChat, deleteEvent, saveEvent, GameEvent } from '@/lib/mockData'
 
 export default function EventsPage() {
   const { user, loading, lang } = useAuth()
@@ -33,12 +33,13 @@ export default function EventsPage() {
   }
 
   const handleJoin = (eventId: string) => {
-    const updatedEvent = joinEvent(eventId)
-    if (updatedEvent) {
-      loadEvents()
-      alert('Вы присоединились к сбору!')
-    }
+  if (!user) return
+  const updatedEvent = joinEventWithChat(eventId, user.id, user.email.split('@')[0])
+  if (updatedEvent) {
+    loadEvents()
+    alert('Вы присоединились к сбору! Чат создан.')
   }
+}
 
   const handleDelete = (eventId: string) => {
     if (confirm('Удалить этот сбор?')) {
