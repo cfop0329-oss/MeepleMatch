@@ -22,6 +22,22 @@ export interface PlayerMarker {
   avatar: string
 }
 
+export interface GameEvent {
+  id: string
+  gameId: string
+  gameName: string
+  playersNeeded: number
+  playersJoined: number
+  time: string
+  location: string
+  lat: number
+  lng: number
+  creatorId: string
+  creatorName: string
+  createdAt: string
+  status: 'active' | 'completed' | 'cancelled'
+}
+
 // Клубы и антикафе Алматы
 export const places: Place[] = [
   {
@@ -103,7 +119,7 @@ export const players: PlayerMarker[] = [
     game: 'Catan',
     playersNeeded: 3,
     time: 'Завтра, 15:00',
-    avatar: '👸',
+    avatar: '',
   },
   {
     id: 'p3',
@@ -114,7 +130,7 @@ export const players: PlayerMarker[] = [
     game: 'Warhammer 40k',
     playersNeeded: 1,
     time: 'Суббота, 12:00',
-    avatar: '⚔️',
+    avatar: '',
   },
   {
     id: 'p4',
@@ -125,7 +141,7 @@ export const players: PlayerMarker[] = [
     game: 'Codenames',
     playersNeeded: 4,
     time: 'Пятница, 18:00',
-    avatar: '🕵️',
+    avatar: '',
   },
   {
     id: 'p5',
@@ -136,6 +152,44 @@ export const players: PlayerMarker[] = [
     game: 'Terraforming Mars',
     playersNeeded: 2,
     time: 'Воскресенье, 14:00',
-    avatar: '🚀',
+    avatar: '',
   },
 ]
+
+// Функции для работы с событиями
+export const getEvents = (): GameEvent[] => {
+  if (typeof window === 'undefined') return []
+  const events = localStorage.getItem('gameEvents')
+  return events ? JSON.parse(events) : []
+}
+
+export const saveEvent = (event: Omit<GameEvent, 'id' | 'createdAt' | 'status' | 'playersJoined'>) => {
+  const events = getEvents()
+  const newEvent: GameEvent = {
+    ...event,
+    id: Date.now().toString(),
+    createdAt: new Date().toISOString(),
+    status: 'active',
+    playersJoined: 0,
+  }
+  events.push(newEvent)
+  localStorage.setItem('gameEvents', JSON.stringify(events))
+  return newEvent
+}
+
+export const deleteEvent = (eventId: string) => {
+  const events = getEvents()
+  const filtered = events.filter(e => e.id !== eventId)
+  localStorage.setItem('gameEvents', JSON.stringify(filtered))
+}
+
+export const joinEvent = (eventId: string) => {
+  const events = getEvents()
+  const event = events.find(e => e.id === eventId)
+  if (event) {
+    event.playersJoined += 1
+    localStorage.setItem('gameEvents', JSON.stringify(events))
+    return event
+  }
+  return null
+}
