@@ -10,6 +10,8 @@ import { getUserChats, Chat } from '@/lib/mockData'
 import { MessageCircle, Users, Clock } from 'lucide-react'
 import ChatWindow from '@/components/ChatWindow'
 
+
+
 export default function ChatsPage() {
   const { user, loading, lang } = useAuth()
   const router = useRouter()
@@ -72,7 +74,11 @@ export default function ChatsPage() {
   }
 
   return (
+    
     <div className="min-h-screen pb-24 bg-[#f3f1e2]">
+
+      <div className="page-background" />
+
       {/* Шапка */}
       <div className="bg-gradient-to-b from-amber-900 to-amber-950 border-b-4 border-amber-950 shadow-lg">
         <div className="max-w-4xl mx-auto px-6 py-4">

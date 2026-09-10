@@ -212,3 +212,54 @@ body {
   top: 60%; 
   transform: translateY(-50%) scaleX(-1); 
 }
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
+/* Фоновое изображение для всех страниц */
+.page-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('/background.jfif');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 0;
+}
+
+.page-background::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(243, 241, 226, 0.85) 0%,
+    rgba(232, 229, 212, 0.9) 50%,
+    rgba(212, 208, 190, 0.95) 100%
+  );
+  z-index: 1;
+}
+
+/* Для страниц с тёмной шапкой */
+.page-background-dark::before {
+  background: linear-gradient(
+    to bottom,
+    rgba(120, 53, 15, 0.7) 0%,
+    rgba(120, 53, 15, 0.5) 30%,
+    rgba(243, 241, 226, 0.9) 70%,
+    rgba(243, 241, 226, 0.95) 100%
+  );
+}
