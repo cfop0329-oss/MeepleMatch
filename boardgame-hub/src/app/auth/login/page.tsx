@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { login } from '@/lib/auth'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { t } from '@/lib/i18n'
@@ -11,73 +10,53 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
-  const { lang, refreshUser } = useAuth()
+  const { lang, login } = useAuth()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setIsLoading(true)
 
-    const result = login(email, password)
-    if (!result.success) {
-      setError(result.error || 'Ошибка')
-    } else {
-      refreshUser() // <-- ДОБАВИЛИ ЭТУ СТРОКУ
-      router.push('/profile')
+    try {
+      await login(email, password)
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setIsLoading(false)
     }
   }
 
   return (
     <div className="min-h-screen flex relative overflow-hidden">
-      {/* Фоновое изображение таверны */}
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: 'url(/background.jfif)',
-        }}
-      >
+      <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(/background.jfif)' }}>
         <div className="absolute inset-0 bg-black/40" />
       </div>
 
-      {/* Переключатель языка */}
       <div className="absolute top-6 right-6 z-20">
         <LanguageSwitcher />
       </div>
 
-      {/* Контент */}
       <div className="relative z-10 w-full flex items-center justify-center p-6">
-        {/* Книга */}
         <div className="relative book-shadow">
-          {/* Деревянная обложка */}
           <div className="relative bg-gradient-to-br from-amber-900 via-amber-800 to-amber-950 rounded-lg p-4 border-4 border-amber-950">
-            {/* Металлические уголки */}
             <div className="absolute top-0 left-0 w-10 h-10 bg-gradient-to-br from-yellow-700 to-yellow-900 rounded-tl-lg border-2 border-yellow-950 shadow-md" />
             <div className="absolute top-0 right-0 w-10 h-10 bg-gradient-to-bl from-yellow-700 to-yellow-900 rounded-tr-lg border-2 border-yellow-950 shadow-md" />
             <div className="absolute bottom-0 left-0 w-10 h-10 bg-gradient-to-tr from-yellow-700 to-yellow-900 rounded-bl-lg border-2 border-yellow-950 shadow-md" />
             <div className="absolute bottom-0 right-0 w-10 h-10 bg-gradient-to-tl from-yellow-700 to-yellow-900 rounded-br-lg border-2 border-yellow-950 shadow-md" />
 
-            {/* Пергамент */}
             <div className="relative parchment-bg rounded p-8 min-w-[420px]">
-              {/* Декоративные уголки — сюда вставь PNG */}
               <div className="decor-corner decor-corner-tl" />
               <div className="decor-corner decor-corner-tr" />
               <div className="decor-corner decor-corner-bl" />
               <div className="decor-corner decor-corner-br" />
-
-              {/* Декоративные миплы — сюда вставь PNG */}
               <div className="decor-meeple decor-meeple-left" />
               <div className="decor-meeple decor-meeple-right" />
 
-              {/* Логотип */}
               <div className="text-center mb-6 relative z-10">
                 <div className="inline-block mb-3">
-                  <svg
-                    viewBox="0 0 100 100"
-                    className="w-16 h-16 mx-auto"
-                    style={{ color: '#5c3a21' }}
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
+                  <svg viewBox="0 0 100 100" className="w-16 h-16 mx-auto" style={{ color: '#5c3a21' }} fill="none" xmlns="http://www.w3.org/2000/svg">
                     <rect x="10" y="10" width="80" height="80" rx="12" fill="currentColor" fillOpacity="0.15" stroke="currentColor" strokeWidth="3"/>
                     <circle cx="35" cy="35" r="6" fill="currentColor"/>
                     <circle cx="65" cy="35" r="6" fill="currentColor"/>
@@ -86,85 +65,46 @@ export default function LoginPage() {
                     <circle cx="65" cy="65" r="6" fill="currentColor"/>
                   </svg>
                 </div>
-                <h1 className="font-cinzel text-4xl font-bold mb-2" style={{ color: '#2d1810' }}>
-                  MeepleMatch
-                </h1>
-                <p className="font-lora text-sm" style={{ color: '#5c3a21' }}>
-                  {t('login', lang)} и начни играть
-                </p>
+                <h1 className="font-cinzel text-4xl font-bold mb-2" style={{ color: '#2d1810' }}>MeepleMatch</h1>
+                <p className="font-lora text-sm" style={{ color: '#5c3a21' }}>{t('login', lang)} и начни играть</p>
               </div>
 
-              {/* Форма */}
               <form onSubmit={handleSubmit} className="space-y-4 relative z-10">
                 <div>
-                  <label className="block font-lora text-sm font-medium mb-2" style={{ color: '#5c3a21' }}>
-                    {t('email', lang)}
-                  </label>
+                  <label className="block font-lora text-sm font-medium mb-2" style={{ color: '#5c3a21' }}>{t('email', lang)}</label>
                   <div className="relative">
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="example@mail.kz"
-                      required
-                      className="input-embossed w-full px-4 py-3 rounded font-lora"
-                    />
+                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="example@mail.kz" required className="input-embossed w-full px-4 py-3 rounded font-lora" />
                     <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: '#5c3a21' }}>
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
-                      </svg>
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" /></svg>
                     </div>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block font-lora text-sm font-medium mb-2" style={{ color: '#5c3a21' }}>
-                    {t('password', lang)}
-                  </label>
+                  <label className="block font-lora text-sm font-medium mb-2" style={{ color: '#5c3a21' }}>{t('password', lang)}</label>
                   <div className="relative">
-                    <input
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
-                      required
-                      className="input-embossed w-full px-4 py-3 rounded font-lora"
-                    />
+                    <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required className="input-embossed w-full px-4 py-3 rounded font-lora" />
                     <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: '#5c3a21' }}>
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                      </svg>
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                     </div>
                   </div>
                 </div>
 
                 {error && (
-                  <div className="bg-red-100/80 border-2 border-red-400 rounded p-3 text-red-800 text-sm text-center font-lora">
-                    {error}
-                  </div>
+                  <div className="bg-red-100/80 border-2 border-red-400 rounded p-3 text-red-800 text-sm text-center font-lora">{error}</div>
                 )}
 
-                <button
-                  type="submit"
-                  className="btn-wood w-full py-3.5 rounded font-cinzel font-bold text-lg flex items-center justify-center gap-2"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                  </svg>
-                  {t('login', lang)}
+                <button type="submit" disabled={isLoading} className="btn-wood w-full py-3.5 rounded font-cinzel font-bold text-lg flex items-center justify-center gap-2 disabled:opacity-70">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" /></svg>
+                  {isLoading ? 'Вход...' : t('login', lang)}
                 </button>
               </form>
 
               <div className="mt-6 text-center relative z-10">
                 <p className="font-lora text-sm italic" style={{ color: '#5c3a21' }}>
                   {t('noAccount', lang)}{' '}
-                  <a
-                    href="/auth/register"
-                    className="font-bold hover:underline inline-flex items-center gap-1"
-                    style={{ color: '#2d1810' }}
-                  >
-                    {t('register', lang)}
-                    <span>›</span>
+                  <a href="/auth/register" className="font-bold hover:underline inline-flex items-center gap-1" style={{ color: '#2d1810' }}>
+                    {t('register', lang)} <span>›</span>
                   </a>
                 </p>
               </div>
